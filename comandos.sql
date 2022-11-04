@@ -116,3 +116,106 @@ UPDATE empregados SET nome = UPPER(nome) WHERE salario = 9000;
 commit;
 
 
+CREATE TABLE livros (
+   isbn varchar(14), 
+   titulo varchar(100) not null,
+   qtd_paginas int not null,
+   ano int, 
+   categoria varchar(40) not null,
+   preco decimal(5,2) not null,
+primary key(isbn)
+);
+
+
+CREATE TABLE autores (
+   isbn varchar(14) not null, 
+   nome varchar(100) not null, 
+primary key(isbn, nome),
+foreign key(isbn) references livros(isbn)
+);
+
+
+INSERT INTO livros (isbn, titulo, qtd_paginas, ano, preco, categoria) VALUES ('978-8535933925', 'Sapiens', 472, 2020, 45.43, 'ciência');
+INSERT INTO livros (isbn, titulo, qtd_paginas, ano, preco, categoria) VALUES ('978-8535929881', 'Cosmos', 560, 2017, 44.99, 'ciência');
+INSERT INTO livros (isbn, titulo, qtd_paginas, ano, preco, categoria) VALUES ('978-8575227244', 'Refatoração', 456, 2020, 109.70, 'tecnologia');
+INSERT INTO livros (isbn, titulo, qtd_paginas, ano, preco, categoria) VALUES ('978-8577807000', 'O Programador Pragmático', 344, 2010, 168.00, 'tecnologia');
+INSERT INTO livros (isbn, titulo, qtd_paginas, ano, preco, categoria) VALUES ('978-8543004792', 'Java: Como Programar', 968, 2016, 345.80, 'tecnologia');
+
+INSERT INTO autores (isbn, nome) VALUES ('978-8535933925', 'Yuval Noah Harari');
+INSERT INTO autores (isbn, nome) VALUES ('978-8535929881', 'Carl Sagan');
+INSERT INTO autores (isbn, nome) VALUES ('978-8575227244', 'Martin Fowler');
+INSERT INTO autores (isbn, nome) VALUES ('978-8577807000', 'Andrew Hunt');
+INSERT INTO autores (isbn, nome) VALUES ('978-8577807000', 'David Thomas');
+INSERT INTO autores (isbn, nome) VALUES ('978-8543004792', 'Paul Deitel');
+INSERT INTO autores (isbn, nome) VALUES ('978-8543004792', 'Harvey Deitel');
+
+
+SELECT categoria FROM livros GROUP BY categoria;
+SELECT categoria, count(*) FROM livros GROUP BY categoria;
+SELECT categoria, SUM(preco) FROM livros GROUP BY categoria ORDER BY SUM(preco) DESC;
+SELECT categoria, MAX(preco) FROM livros GROUP BY categoria;
+
+SELECT isbn, count(*) FROM autores GROUP BY isbn;
+SELECT isbn, count(*) FROM autores GROUP BY isbn HAVING COUNT(*) > 1;
+
+
+
+DROP TABLE IF EXISTS enderecos;
+DROP TABLE IF EXISTS clientes;
+
+CREATE TABLE clientes (
+    id_cliente int auto_increment,
+    nome varchar(100) not null, 
+primary key(id_cliente)
+);
+
+CREATE TABLE enderecos (
+    id_endereco int auto_increment,
+    rua varchar(100) not null,
+    numero int,
+    bairro varchar(100),
+    cidade varchar(100),
+    uf varchar(2), 
+    id_cliente int,
+primary key(id_endereco),
+foreign key(id_cliente) references clientes(id_cliente)
+);
+
+
+INSERT INTO clientes (nome) VALUES ('Harvey Specter');
+INSERT INTO clientes (nome) VALUES ('Mike Ross');
+INSERT INTO clientes (nome) VALUES ('Donna Paulsen');
+INSERT INTO clientes (nome) VALUES ('Louis Litt');
+INSERT INTO clientes (nome) VALUES ('Rachel Zane');
+INSERT INTO clientes (nome) VALUES ('Jessica Pearson');
+
+INSERT INTO enderecos (rua, numero, cidade, id_cliente) VALUES ('Rua do Harvey', 22, 'São Paulo', (select id_cliente from clientes where nome = 'Harvey Specter'));
+INSERT INTO enderecos (rua, numero, cidade, id_cliente) VALUES ('Rua do Mike', 33, 'Florianópolis', (select id_cliente from clientes where nome = 'Mike Ross'));
+INSERT INTO enderecos (rua, numero, cidade, id_cliente) VALUES ('Rua da Donna', 44, 'Rio de Janeiro', (select id_cliente from clientes where nome = 'Donna Paulsen'));
+
+INSERT INTO enderecos (rua, numero, cidade) VALUES ('Rua Sem Dono 01', 88, 'Nova York');
+INSERT INTO enderecos (rua, numero, cidade) VALUES ('Rua Sem Dono 02', 86, 'Chicago');
+INSERT INTO enderecos (rua, numero, cidade) VALUES ('Rua Sem Dono 03', 87, 'Nova Orleans');
+INSERT INTO enderecos (rua, numero, cidade) VALUES ('Rua Sem Dono 04', 89, 'Seattle');
+
+commit;
+
+
+SELECT clientes.id_cliente, nome, id_endereco, rua, numero, cidade   
+FROM clientes INNER JOIN enderecos ON clientes.id_cliente = enderecos.id_cliente;
+
+SELECT clientes.id_cliente, nome, id_endereco, rua, numero, cidade   
+FROM clientes LEFT JOIN enderecos ON clientes.id_cliente = enderecos.id_cliente;
+
+SELECT clientes.id_cliente, nome, id_endereco, rua, numero, cidade   
+FROM clientes RIGHT JOIN enderecos ON clientes.id_cliente = enderecos.id_cliente;
+
+-- DESAFIO
+
+SELECT * FROM livros inner join autores ON livros.isbn = autores.isbn;
+
+SELECT * FROM livros inner join autores ON livros.isbn = autores.isbn
+WHERE preco = (select min(preco) from livros);
+
+
+
